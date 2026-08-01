@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Issue | NeuroScan</title>
+    <link rel="stylesheet" href="/static/report.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="report-page">
+        <aside class="report-sidebar">
+            <a href="/" class="back-link">Back to home</a>
+            <p class="sidebar-kicker">New report</p>
+            <h1>Submit an issue with image proof and location.</h1>
+            <p class="sidebar-copy">
+                Signed in as <strong>{{ user.name }}</strong>. Your saved mobile number will be attached automatically.
+            </p>
+
+            <div class="credit-summary">
+                <span>Available credits</span>
+                <strong>{{ available_credits }}</strong>
+                <p>Use {{ priority_redeem_cost }} credits to send this report into the priority queue.</p>
+            </div>
+
+            <div class="sidebar-steps">
+                <article>
+                    <span>1</span>
+                    <div>
+                        <h3>Choose issue type</h3>
+                        <p>Select the closest category so the model can analyze the image correctly.</p>
+                    </div>
+                </article>
+                <article>
+                    <span>2</span>
+                    <div>
+                        <h3>Pin the location</h3>
+                        <p>Drag the marker or tap the map to place the issue exactly where crews should inspect.</p>
+                    </div>
+                </article>
+                <article>
+                    <span>3</span>
+                    <div>
+                        <h3>Upload evidence</h3>
+                        <p>Use an existing image or capture one live before submitting it for AI review.</p>
+                    </div>
+                </article>
+            </div>
+        </aside>
+
+        <main class="report-main">
+            <section class="report-card">
+                <div class="card-head">
+                    <div>
+                        <p class="mini-label">New complaint</p>
+                        <h2>Issue intake form</h2>
+                    </div>
+                    <div class="report-head-links">
+                        <a class="logout-link" href="/my-reports">My Reports{% if unread_notifications %} ({{ unread_notifications }}){% endif %}</a>
+                        <a class="logout-link" href="/logout">Logout</a>
+                    </div>
+                </div>
+
+                <div class="field-block">
+                    <div class="section-row">
+                        <label>Issue Type</label>
+                        <p class="helper-note inline">AI is used only for categories that are image-reliable today.</p>
+                    </div>
+                    <div class="mobile-select-wrap">
+                        <select id="issueSelect" aria-label="Select report type">
+                            {% for issue in issue_catalog %}
+                            <option value="{{ issue.key }}" data-mode="{{ issue.detection_mode }}" {{ 'selected' if issue.key == 'pothole' else '' }}>
+                                {{ issue.label }} - {{ 'AI Review' if issue.detection_mode == 'ai' else 'Manual Review' }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div id="issueGrid" class="issue-groups">
+                        {% for group_name, issues in issue_groups.items() %}
+                        <section class="issue-group">
+                            <div class="issue-group-head">
+                                <h3>{{ group_name }}</h3>
+                                <span>{{ issues|length }} categories</span>
+                            </div>
+                            <div class="issue-grid">
+                                {% for issue in issues %}
+                                <button
+                                    type="button"
+                                    class="issue-item {{ 'active' if issue.key == 'pothole' else '' }}"
+                                    data-type="{{ issue.key }}"
+                                    data-mode="{{ issue.detection_mode }}"
+                                    data-label="{{ issue.label }}"
+                                >
+                                    <strong>{{ issue.label }}</strong>
+                                    <span>{{ issue.summary }}</span>
+                                    <em class="mode-badge {{ issue.detection_mode }}">{{ 'AI Review' if issue.detection_mode == 'ai' else 'Manual Review' }}</em>
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </section>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="field-block">
+                    <label>Location</label>
+                    <div id="map"></div>
+                    <p class="helper-note">Tap anywhere on the map or drag the marker to refine the exact issue location.</p>
+                </div>
+
+                <div class="field-block">
+                    <label>Image Evidence</label>
+                    <div class="upload-options">
+                        <input type="file" id="imageInput" accept="image/*" hidden>
+                        <button type="button" class="ghost-btn" onclick="document.getElementById('imageInput').click()">Upload Photo</button>
+                        <button type="button" class="ghost-btn" onclick="startCamera()">Use Camera</button>
+                    </div>
+                    <div id="previewWrap" class="preview-wrap"></div>
+                    <div id="cameraContainer" class="camera-wrap" style="display:none;">
+                        <video id="video" autoplay playsinline></video>
+                        <button type="button" class="capture-btn" onclick="capturePhoto()">Capture Photo</button>
+                    </div>
+                    <canvas id="canvas" style="display:none;"></canvas>
+                </div>
+
+                <div class="field-block">
+                    <label for="comment">Comments</label>
+                    <textarea id="comment" placeholder="Add landmarks, urgency details, or any helpful notes."></textarea>
+                </div>
+
+                <div class="field-block">
+                    <label class="priority-toggle" for="useCredits">
+                        <input id="useCredits" type="checkbox" {% if available_credits < priority_redeem_cost %}disabled{% endif %}>
+                        <span>
+                            Use {{ priority_redeem_cost }} credits for priority handling
+                            {% if available_credits < priority_redeem_cost %}
+                            <small>You need {{ priority_redeem_cost - available_credits }} more credits.</small>
+                            {% else %}
+                            <small>Your wallet balance will be reduced after submission.</small>
+                            {% endif %}
+                        </span>
+                    </label>
+                </div>
+
+                <button class="submit-btn" id="submitBtn" onclick="submitReport()">Analyze and submit report</button>
+                <p id="status" class="status-text"></p>
+            </section>
+
+            <section id="resultCard" class="result-card" style="display:none;">
+                <div class="card-head compact">
+                    <div>
+                        <p class="mini-label">Preview</p>
+                        <h2>Detection result</h2>
+                    </div>
+                </div>
+                <img id="resultImage" src="" alt="Detected issue result">
+                <p id="confidenceScore"></p>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        window.issueCatalog = {{ issue_catalog | tojson }};
+        window.priorityRedeemCost = {{ priority_redeem_cost }};
+        window.availableCredits = {{ available_credits }};
+    </script>
+    <script src="/static/report.js"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroScan | Smart City Issue Detection</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="navbar">
+            <a class="brand-mark" href="/">NeuroScan</a>
+            <div class="nav-actions">
+                <a href="#workflow">Workflow</a>
+                <a href="#capabilities">Capabilities</a>
+                {% if admin %}
+                <a class="pill-link" href="/admin/dashboard">Admin Dashboard</a>
+                <a href="/admin/logout">Logout</a>
+                {% elif user %}
+                <a class="pill-link" href="/report">Report Issue</a>
+                <a href="/my-reports">My Reports{% if unread_notifications %} ({{ unread_notifications }}){% endif %}</a>
+                <a href="/logout">Logout</a>
+                {% else %}
+                <a href="/login">Login</a>
+                <a class="pill-link" href="/login">Get Started</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-media">
+                <img src="/static/hero.jpg" alt="Urban infrastructure monitoring">
+                <div class="hero-overlay"></div>
+            </div>
+            <div class="hero-content">
+                <p class="kicker">AI-powered civic issue reporting</p>
+                <h1>Detect city issues faster, route them better, close them smarter.</h1>
+                <p class="hero-copy">
+                    NeuroScan combines image analysis, location data, and structured complaint workflows so citizens can report in seconds and authorities can act with clarity.
+                </p>
+                <div class="hero-actions">
+                    {% if admin %}
+                    <a class="primary-btn" href="/admin/dashboard">Go to admin dashboard</a>
+                    {% else %}
+                    <a class="primary-btn" href="{{ '/report' if user else '/login' }}">Start a report</a>
+                    {% endif %}
+                    <a class="secondary-btn" href="#capabilities">See platform features</a>
+                </div>
+                <div class="hero-stats">
+                    <div>
+                        <strong>Image-based detection</strong>
+                        <span>Structured AI review for potholes, waste, cracks, and manholes.</span>
+                    </div>
+                    <div>
+                        <strong>Location-aware reports</strong>
+                        <span>Citizen submissions keep coordinates attached from the start.</span>
+                    </div>
+                    <div>
+                        <strong>Admin case management</strong>
+                        <span>Authorities can search, review, update, and download case evidence.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="workflow" class="band">
+            <div class="section-head">
+                <p class="kicker">Workflow</p>
+                <h2>Built for the full issue lifecycle</h2>
+            </div>
+            <div class="workflow-grid">
+                <article>
+                    <span>01</span>
+                    <h3>Citizen submits evidence</h3>
+                    <p>Users sign in with a verified account, capture an image, and drop a precise pin on the map.</p>
+                </article>
+                <article>
+                    <span>02</span>
+                    <h3>AI classifies the issue</h3>
+                    <p>The uploaded image is processed through the detection pipeline to estimate issue type and confidence.</p>
+                </article>
+                <article>
+                    <span>03</span>
+                    <h3>Authorities take action</h3>
+                    <p>Admins review the report, update the status, and coordinate field work using the attached evidence.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="capabilities" class="band muted">
+            <div class="section-head">
+                <p class="kicker">Capabilities</p>
+                <h2>Designed for practical smart city operations</h2>
+            </div>
+            <div class="capability-grid">
+                <article class="capability-card">
+                    <h3>Citizen reporting</h3>
+                    <p>Fast report submission with stored contact details, issue categorization, and optional field notes.</p>
+                </article>
+                <article class="capability-card">
+                    <h3>AI-supported triage</h3>
+                    <p>Model outputs and confidence scores help reduce manual review time during complaint intake.</p>
+                </article>
+                <article class="capability-card">
+                    <h3>Operations dashboard</h3>
+                    <p>Admin teams can track pending, in-progress, and completed complaints from one workspace.</p>
+                </article>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

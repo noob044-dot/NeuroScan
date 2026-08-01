@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Portal | NeuroScan</title>
+    <link rel="stylesheet" href="/static/auth.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-shell">
+        <section class="auth-aside">
+            <a class="brand" href="/">NeuroScan</a>
+            <p class="eyebrow">Access portal</p>
+            <h1>Secure sign-in for citizens and city teams.</h1>
+
+            <div class="aside-grid">
+                <article>
+                    <span>Citizen</span>
+                    <strong>Submit and track reports</strong>
+                </article>
+                <article>
+                    <span>Admin</span>
+                    <strong>Review and close cases</strong>
+                </article>
+            </div>
+        </section>
+
+        <section class="auth-panel">
+            <div class="auth-card">
+                <div class="auth-card-top">
+                    <p class="mini-label">Sign in</p>
+                    <h2>Sign in to continue</h2>
+                </div>
+
+                {% if error %}
+                <div class="message error">{{ error }}</div>
+                {% endif %}
+                {% if success %}
+                <div class="message success">{{ success }}</div>
+                {% endif %}
+
+                <div class="tab-row">
+                    <button type="button" id="userTab" class="tab-button {{ 'active' if active_tab != 'admin' else '' }}" onclick="showUser()">Citizen</button>
+                    <button type="button" id="adminTab" class="tab-button {{ 'active' if active_tab == 'admin' else '' }}" onclick="showAdmin()">Admin</button>
+                </div>
+
+                <div id="userSection" class="tab-panel {{ 'active' if active_tab != 'admin' else '' }}">
+                    <form action="/login/user" method="post" class="stack-form">
+                        <div class="field-row">
+                            <label for="user-mobile">Mobile Number</label>
+                            <input id="user-mobile" type="text" name="mobile" placeholder="10-digit mobile number" required>
+                        </div>
+                        <div class="field-row">
+                            <label for="user-password">Password</label>
+                            <input id="user-password" type="password" name="password" placeholder="Enter your password" required>
+                        </div>
+                        <button class="submit-btn" type="submit">Sign in as citizen</button>
+                    </form>
+
+                    <div class="divider"><span>New to NeuroScan?</span></div>
+
+                    <form action="/register/user" method="post" class="stack-form register-form">
+                        <div class="field-row">
+                            <label for="register-name">Full Name</label>
+                            <input id="register-name" type="text" name="full_name" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="field-row split">
+                            <div>
+                                <label for="register-mobile">Mobile</label>
+                                <input id="register-mobile" type="text" name="mobile" placeholder="10-digit mobile number" required>
+                            </div>
+                            <div>
+                                <label for="register-password">Password</label>
+                                <input id="register-password" type="password" name="password" placeholder="Minimum 8 characters" required>
+                            </div>
+                        </div>
+                        <div class="field-row">
+                            <label for="register-confirm">Confirm Password</label>
+                            <input id="register-confirm" type="password" name="confirm_password" placeholder="Repeat your password" required>
+                        </div>
+                        <button class="submit-btn secondary" type="submit">Create citizen account</button>
+                    </form>
+                </div>
+
+                <div id="adminSection" class="tab-panel {{ 'active' if active_tab == 'admin' else '' }}">
+                    <form action="/login/admin" method="post" class="stack-form">
+                        <div class="field-row">
+                            <label for="admin-username">Username</label>
+                            <input id="admin-username" type="text" name="username" placeholder="Administrator username" required>
+                        </div>
+                        <div class="field-row">
+                            <label for="admin-password">Password</label>
+                            <input id="admin-password" type="password" name="password" placeholder="Administrator password" required>
+                        </div>
+                        <button class="submit-btn" type="submit">Open admin dashboard</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const userTab = document.getElementById("userTab");
+        const adminTab = document.getElementById("adminTab");
+        const userSection = document.getElementById("userSection");
+        const adminSection = document.getElementById("adminSection");
+
+        function showUser() {
+            userTab.classList.add("active");
+            adminTab.classList.remove("active");
+            userSection.classList.add("active");
+            adminSection.classList.remove("active");
+        }
+
+        function showAdmin() {
+            adminTab.classList.add("active");
+            userTab.classList.remove("active");
+            adminSection.classList.add("active");
+            userSection.classList.remove("active");
+        }
+    </script>
+</body>
+</html>

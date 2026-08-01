@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | NeuroScan</title>
+    <link rel="stylesheet" href="/static/admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-shell">
+        <aside class="dashboard-sidebar">
+            <a href="/" class="brand">NeuroScan</a>
+            <p class="sidebar-label">Admin workspace</p>
+            <h1>{{ admin.name }}</h1>
+            <p class="sidebar-copy">Live complaint queue, priority cases, and one-click status updates.</p>
+
+            <div class="sidebar-actions">
+                <a href="/" class="sidebar-link">Public landing page</a>
+                <a href="/admin/logout" class="sidebar-link">Logout</a>
+            </div>
+
+            <div class="sidebar-note">
+                <strong>Completion reward</strong>
+                <p>Each report marked completed adds {{ completion_reward_points }} credits to that citizen wallet.</p>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <section class="stats-row">
+                <article class="stat-card">
+                    <span>Total complaints</span>
+                    <strong>{{ stats.total }}</strong>
+                </article>
+                <article class="stat-card warning">
+                    <span>Pending</span>
+                    <strong>{{ stats.pending }}</strong>
+                </article>
+                <article class="stat-card info">
+                    <span>In Progress</span>
+                    <strong>{{ stats.in_progress }}</strong>
+                </article>
+                <article class="stat-card success">
+                    <span>Completed</span>
+                    <strong>{{ stats.completed }}</strong>
+                </article>
+                <article class="stat-card accent">
+                    <span>Priority queue</span>
+                    <strong>{{ stats.priority }}</strong>
+                </article>
+            </section>
+
+            <section class="table-panel">
+                <div class="panel-head">
+                    <div>
+                        <p class="mini-label">Live queue</p>
+                        <h2>All complaints</h2>
+                    </div>
+                    <input id="searchInput" type="text" placeholder="Search by issue, user, contact, or status">
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>Citizen</th>
+                                <th>Issue</th>
+                                <th>Review</th>
+                                <th>Submitted</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="complaintsTable">
+                            {% for c in complaints %}
+                            <tr data-search="{{ (c.reference_code or ('CE-' ~ c.id)) ~ ' ' ~ (c.user_name or '') ~ ' ' ~ (c.user_contact or '') ~ ' ' ~ (c.issue_type or '') ~ ' ' ~ (c.status or '') ~ ' ' ~ (c.detection_mode or '') ~ ' ' ~ (c.severity or '') ~ ' ' ~ ('priority' if c.priority_requested else 'standard') }}">
+                                <td>
+                                    <div class="ref-block">
+                                        <strong>{{ c.reference_code or ('CE-' ~ c.id) }}</strong>
+                                        <span>#{{ c.id }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="user-block">
+                                        <strong>{{ c.user_name or 'Unknown user' }}</strong>
+                                        <span>{{ c.user_contact or 'No contact' }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="issue-block">
+                                        <strong>{{ c.issue_type }}</strong>
+                                        <span>{{ c.severity or 'Needs Review' }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="review-chip {{ (c.detection_mode or 'Manual Review').lower().replace(' ', '-') }}">{{ c.detection_mode or 'Manual Review' }}</span>
+                                </td>
+                                <td>{{ c.created_at or 'Earlier record' }}</td>
+                                <td>
+                                    {% if c.priority_requested %}
+                                    <span class="priority-chip">Priority</span>
+                                    {% else %}
+                                    <span class="priority-chip muted">Standard</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="status-cell">
+                                        <span id="status-chip-{{ c.id }}" class="status-chip {{ (c.status or 'Pending').lower().replace(' ', '-') }}">{{ c.status or 'Pending' }}</span>
+                                        <select class="table-status-select" onchange="updateStatus({{ c.id }}, this.value)">
+                                            {% for status in status_choices %}
+                                            <option value="{{ status }}" {{ 'selected' if (c.status or 'Pending') == status else '' }}>{{ status }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="action-row">
+                                        <a class="table-link" href="/admin/report/{{ c.id }}">Open</a>
+                                        <a class="table-link" href="/admin/download/{{ c.id }}">Download</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById("searchInput");
+        const rows = Array.from(document.querySelectorAll("#complaintsTable tr"));
+
+        searchInput.addEventListener("input", () => {
+            const query = searchInput.value.trim().toLowerCase();
+            rows.forEach((row) => {
+                const haystack = row.dataset.search.toLowerCase();
+                row.style.display = haystack.includes(query) ? "" : "none";
+            });
+        });
+
+        async function updateStatus(reportId, status) {
+            try {
+                const response = await fetch(`/admin/update/${reportId}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    return;
+                }
+
+                const chip = document.getElementById(`status-chip-${reportId}`);
+                chip.textContent = status;
+                chip.className = `status-chip ${status.toLowerCase().replaceAll(" ", "-")}`;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>

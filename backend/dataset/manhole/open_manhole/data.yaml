@@ -1,0 +1,8 @@
+path: .
+
+train: images
+val: images
+
+nc: 1
+names: ['open_manhole']
+

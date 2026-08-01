@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Detail | NeuroScan</title>
+    <link rel="stylesheet" href="/static/admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="detail-shell">
+        <div class="detail-topbar">
+            <a href="/admin/dashboard" class="detail-back">Back to dashboard</a>
+            <a href="/admin/logout" class="detail-back">Logout</a>
+        </div>
+
+        <div class="detail-grid">
+            <section class="detail-card">
+                <p class="mini-label">Evidence</p>
+                <h1>{{ report.reference_code or ('CE-' ~ report.id) }}</h1>
+                <img class="detail-image" src="{{ image_url }}" alt="Complaint evidence image">
+                <div class="detail-actions">
+                    <a class="table-link" href="/admin/download/{{ report.id }}">Download image</a>
+                    <a class="table-link" href="https://maps.google.com/?q={{ report.latitude }},{{ report.longitude }}" target="_blank" rel="noreferrer">Open map</a>
+                </div>
+            </section>
+
+            <section class="detail-card">
+                <p class="mini-label">Case information</p>
+                <h2>{{ report.issue_type }}</h2>
+
+                <div class="detail-list">
+                    <div><span>Citizen</span><strong>{{ report.user_name or 'Unknown user' }}</strong></div>
+                    <div><span>Contact</span><strong>{{ report.user_contact or 'No contact' }}</strong></div>
+                    <div><span>Queue Type</span><strong>{{ 'Priority' if report.priority_requested else 'Standard' }}</strong></div>
+                    <div><span>Review Mode</span><strong>{{ report.detection_mode or 'Manual Review' }}</strong></div>
+                    <div><span>Severity</span><strong>{{ report.severity or 'Needs Review' }}</strong></div>
+                    <div><span>Model Route</span><strong>{{ report.model_key if report.model_key else 'Manual review queue' }}</strong></div>
+                    <div><span>Confidence</span><strong>{{ (report.confidence * 100)|round|int if report.confidence is not none else 0 }}%</strong></div>
+                    <div><span>Coordinates</span><strong>{{ report.latitude }}, {{ report.longitude }}</strong></div>
+                    <div><span>Submitted</span><strong>{{ report.created_at or 'Earlier record' }}</strong></div>
+                    <div><span>Reward</span><strong>{{ report.reward_points if report.reward_points else completion_reward_points }} credits on completion</strong></div>
+                </div>
+
+                <div class="comment-box">
+                    <span>Citizen note</span>
+                    <p>{{ report.comment if report.comment else 'No additional details were provided for this complaint.' }}</p>
+                </div>
+
+                <div class="status-manager">
+                    <label for="statusSelect">Resolution status</label>
+                    <div class="status-row">
+                        <select id="statusSelect">
+                            {% for status in status_choices %}
+                            <option value="{{ status }}" {{ 'selected' if report.status == status else '' }}>{{ status }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" onclick="saveStatus()">Save status</button>
+                    </div>
+                    <p id="statusMessage" class="status-feedback"></p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        async function saveStatus() {
+            const statusSelect = document.getElementById("statusSelect");
+            const statusMessage = document.getElementById("statusMessage");
+
+            statusMessage.textContent = "Saving status...";
+
+            try {
+                const response = await fetch("/admin/update/{{ report.id }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: statusSelect.value })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    statusMessage.textContent = result.error || "Could not update the complaint status.";
+                    statusMessage.classList.add("error");
+                    return;
+                }
+
+                statusMessage.textContent = result.reward_granted
+                    ? `Status updated. ${result.reward_points} credits were added to the citizen wallet.`
+                    : "Status updated successfully.";
+                statusMessage.classList.remove("error");
+            } catch (error) {
+                statusMessage.textContent = "Network error while updating status.";
+                statusMessage.classList.add("error");
+            }
+        }
+    </script>
+</body>
+</html>

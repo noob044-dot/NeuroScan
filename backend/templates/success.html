@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Submitted | NeuroScan</title>
+    <link rel="stylesheet" href="/static/success.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="success-wrapper">
+        <div class="receipt-card">
+            <div class="receipt-header">
+                <div class="check-icon">OK</div>
+                <h1>Report submitted successfully</h1>
+                <p class="report-id">Reference ID: <span>{{ report_id }}</span></p>
+                <div class="status-badge">Current status: Pending</div>
+            </div>
+
+            <div class="receipt-body">
+                <div class="image-section">
+                    <div class="image-container">
+                        <img src="{{ image_url }}" alt="AI detection preview">
+                        <div class="detection-overlay">AI review completed</div>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="bar-label">{{ analysis_mode }}</div>
+                        <div class="bar-outer">
+                            <div class="bar-inner" style="width: {{ confidence }}%;"></div>
+                        </div>
+                        <span class="percentage">{{ confidence }}%</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Complaint details</h3>
+
+                    <div class="data-row">
+                        <span class="label">Issue Type</span>
+                        <span class="value">{{ issue_type }}</span>
+                    </div>
+
+                    <div class="data-row">
+                        <span class="label">Analysis Mode</span>
+                        <span class="value">{{ analysis_mode }}</span>
+                    </div>
+
+                    <div class="data-row">
+                        <span class="label">Severity</span>
+                        <span class="value">{{ severity }}</span>
+                    </div>
+
+                    <div class="data-row">
+                        <span class="label">Coordinates</span>
+                        <span class="value">{{ latitude }}, {{ longitude }}</span>
+                    </div>
+
+                    <div class="data-row desc-row">
+                        <span class="label">Processing Note</span>
+                        <p class="value">{{ analysis_note if analysis_note else "The complaint has been queued for authority review." }}</p>
+                    </div>
+
+                    <div class="data-row desc-row">
+                        <span class="label">Comment</span>
+                        <p class="value">{{ comment if comment else "No additional details provided." }}</p>
+                    </div>
+
+                    <div class="action-footer">
+                        <a href="/report" class="btn btn-primary">Submit another report</a>
+                        <a href="/" class="btn btn-outline">Return home</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="receipt-footer">
+                <p>Your complaint has been stored and is now visible to the authority dashboard for action.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

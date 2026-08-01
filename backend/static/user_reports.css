@@ -1,0 +1,342 @@
+:root {
+    --bg: #eff4f0;
+    --panel: rgba(255, 255, 255, 0.95);
+    --text: #162033;
+    --muted: #667085;
+    --line: rgba(22, 32, 51, 0.12);
+    --accent: #166534;
+    --accent-dark: #14532d;
+    --gold: #b45309;
+    --warning: #b45309;
+    --info: #1d4ed8;
+    --success: #15803d;
+    --shadow: 0 24px 60px rgba(15, 23, 42, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Manrope", sans-serif;
+    color: var(--text);
+    background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.08), transparent 24%),
+        linear-gradient(180deg, #f8fbfa 0%, var(--bg) 100%);
+}
+
+.reports-shell {
+    min-height: 100vh;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+    gap: 20px;
+}
+
+.reports-sidebar,
+.summary-card,
+.panel,
+.report-card,
+.notification-card,
+.wallet-card,
+.identity-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+}
+
+.reports-sidebar,
+.panel {
+    padding: 24px;
+}
+
+.brand,
+.panel h2,
+.reports-sidebar h1 {
+    font-family: "Space Grotesk", sans-serif;
+}
+
+.brand {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.eyebrow,
+.mini-label {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+}
+
+.reports-sidebar h1,
+.panel h2 {
+    margin: 10px 0 0;
+}
+
+.sidebar-copy,
+.wallet-card p,
+.report-meta,
+.notification-meta,
+.empty-state,
+.report-card p {
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.sidebar-actions {
+    display: grid;
+    gap: 10px;
+    margin: 24px 0 18px;
+}
+
+.sidebar-link {
+    min-height: 46px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 800;
+}
+
+.sidebar-link.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: transparent;
+}
+
+.wallet-card,
+.identity-card {
+    padding: 18px;
+}
+
+.wallet-card {
+    background: linear-gradient(135deg, rgba(20, 83, 45, 0.96), rgba(22, 101, 52, 0.9));
+    color: #fff;
+}
+
+.wallet-card p,
+.wallet-card .wallet-label {
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.wallet-label,
+.identity-card span {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.wallet-card strong,
+.identity-card strong {
+    display: block;
+    margin-top: 8px;
+    font-size: 1.9rem;
+    font-family: "Space Grotesk", sans-serif;
+}
+
+.identity-card strong {
+    font-size: 1.1rem;
+    font-family: "Manrope", sans-serif;
+}
+
+.reports-main {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.summary-card {
+    padding: 20px;
+}
+
+.summary-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.summary-card strong {
+    font-size: 2rem;
+    font-family: "Space Grotesk", sans-serif;
+}
+
+.summary-card.highlight {
+    background: linear-gradient(135deg, rgba(20, 83, 45, 0.96), rgba(22, 101, 52, 0.88));
+    color: #fff;
+}
+
+.summary-card.highlight span {
+    color: rgba(255, 255, 255, 0.76);
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.9fr;
+    gap: 20px;
+}
+
+.panel-head {
+    margin-bottom: 16px;
+}
+
+.secondary-head {
+    margin-top: 24px;
+}
+
+.report-list,
+.notification-list {
+    display: grid;
+    gap: 14px;
+}
+
+.report-card,
+.notification-card {
+    padding: 18px;
+}
+
+.report-top,
+.notification-top,
+.report-footer,
+.notification-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.report-top strong,
+.notification-top strong {
+    display: block;
+}
+
+.report-top span,
+.notification-top span,
+.report-footer span {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.report-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0 8px;
+    font-size: 0.88rem;
+}
+
+.report-footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.report-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.credit-pill {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(180, 83, 9, 0.12);
+    color: var(--gold);
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.status-chip {
+    display: inline-flex;
+    min-height: 30px;
+    padding: 6px 12px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.status-chip.pending {
+    background: rgba(180, 83, 9, 0.12);
+    color: var(--warning);
+}
+
+.status-chip.in-progress {
+    background: rgba(29, 78, 216, 0.12);
+    color: var(--info);
+}
+
+.status-chip.completed {
+    background: rgba(21, 128, 61, 0.12);
+    color: var(--success);
+}
+
+.status-stack {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.compact-card {
+    padding: 16px;
+}
+
+.compact-card .notification-top {
+    align-items: center;
+}
+
+.compact-card .notification-top span {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+@media (max-width: 1100px) {
+    .reports-shell,
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .reports-shell {
+        padding: 16px;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .status-stack {
+        grid-template-columns: 1fr;
+    }
+}

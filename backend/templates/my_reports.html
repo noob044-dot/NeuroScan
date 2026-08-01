@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reports | NeuroScan</title>
+    <link rel="stylesheet" href="/static/user_reports.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="reports-shell">
+        <aside class="reports-sidebar">
+            <a href="/" class="brand">NeuroScan</a>
+            <p class="eyebrow">My reports</p>
+            <h1>{{ user.name }}</h1>
+            <p class="sidebar-copy">Wallet, report status, and recent activity in one place.</p>
+
+            <div class="sidebar-actions">
+                <a href="/report" class="sidebar-link primary">Submit a new report</a>
+                <a href="/logout" class="sidebar-link">Logout</a>
+            </div>
+
+            <div class="wallet-card">
+                <span class="wallet-label">Available credits</span>
+                <strong>{{ credit_summary.available }}</strong>
+                <p>Earn {{ completion_reward_points }} credits for each completed report. Use {{ priority_redeem_cost }} credits to send a new report to priority handling.</p>
+            </div>
+
+            <div class="identity-card">
+                <span>Mobile</span>
+                <strong>{{ user.mobile }}</strong>
+            </div>
+        </aside>
+
+        <main class="reports-main">
+            <section class="summary-grid">
+                <article class="summary-card highlight">
+                    <span>Wallet</span>
+                    <strong>{{ credit_summary.available }}</strong>
+                </article>
+                <article class="summary-card">
+                    <span>Total Reports</span>
+                    <strong>{{ report_stats.total }}</strong>
+                </article>
+                <article class="summary-card">
+                    <span>Total Earned</span>
+                    <strong>{{ credit_summary.earned }}</strong>
+                </article>
+                <article class="summary-card">
+                    <span>Priority Used</span>
+                    <strong>{{ credit_summary.priority_used }}</strong>
+                </article>
+            </section>
+
+            <section class="content-grid">
+                <div class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <p class="mini-label">Report history</p>
+                            <h2>Submitted complaints</h2>
+                        </div>
+                    </div>
+
+                    <div class="report-list">
+                        {% for complaint in complaints %}
+                        <article class="report-card">
+                            <div class="report-top">
+                                <div>
+                                    <strong>{{ complaint.reference_code or ('CE-' ~ complaint.id) }}</strong>
+                                    <span>{{ complaint.issue_type }}</span>
+                                </div>
+                                <span class="status-chip {{ (complaint.status or 'Pending').lower().replace(' ', '-') }}">{{ complaint.status or 'Pending' }}</span>
+                            </div>
+                            <div class="report-meta">
+                                <span>{{ complaint.created_at or 'Earlier record' }}</span>
+                                <span>{{ complaint.detection_mode or 'Manual Review' }}</span>
+                                <span>{{ complaint.severity or 'Needs Review' }}</span>
+                                {% if complaint.priority_requested %}
+                                <span>Priority</span>
+                                {% endif %}
+                            </div>
+                            <p>{{ complaint.comment if complaint.comment else 'No additional comment was provided for this report.' }}</p>
+                            <div class="report-footer">
+                                <div class="report-links">
+                                    <a href="{{ complaint.image_url }}">View image</a>
+                                    {% if complaint.reward_points %}
+                                    <span class="credit-pill">+{{ complaint.reward_points }} credits</span>
+                                    {% endif %}
+                                </div>
+                                <span>Last update: {{ complaint.last_updated_at or complaint.created_at or 'Pending review' }}</span>
+                            </div>
+                        </article>
+                        {% else %}
+                        <p class="empty-state">No reports yet. Submit your first complaint to start tracking updates here.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <p class="mini-label">Queue health</p>
+                            <h2>Status overview</h2>
+                        </div>
+                    </div>
+
+                    <div class="status-stack">
+                        <article class="notification-card compact-card">
+                            <div class="notification-top">
+                                <strong>Pending</strong>
+                                <span>{{ report_stats.pending }}</span>
+                            </div>
+                        </article>
+                        <article class="notification-card compact-card">
+                            <div class="notification-top">
+                                <strong>In Progress</strong>
+                                <span>{{ report_stats.in_progress }}</span>
+                            </div>
+                        </article>
+                        <article class="notification-card compact-card">
+                            <div class="notification-top">
+                                <strong>Completed</strong>
+                                <span>{{ report_stats.completed }}</span>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="panel-head secondary-head">
+                        <div>
+                            <p class="mini-label">Activity</p>
+                            <h2>Recent updates</h2>
+                        </div>
+                    </div>
+
+                    <div class="notification-list">
+                        {% for notification in notifications %}
+                        <article class="notification-card">
+                            <div class="notification-top">
+                                <strong>{{ notification.title }}</strong>
+                                <span>{{ notification.status_snapshot }}</span>
+                            </div>
+                            <p>{{ notification.message }}</p>
+                            <div class="notification-meta">
+                                <span>{{ notification.created_at }}</span>
+                                <span>{{ notification.channel }}</span>
+                            </div>
+                        </article>
+                        {% else %}
+                        <p class="empty-state">Updates will appear here after the first report is reviewed.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
